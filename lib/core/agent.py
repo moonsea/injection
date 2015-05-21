@@ -206,6 +206,8 @@ class Agent(object):
         if conf.direct:
             return self.payloadDirect(expression)
 
+        # print "original expression ----",expression
+
         expression = self.cleanupPayload(expression)
         expression = unescaper.escape(expression)
         query = None
@@ -234,8 +236,10 @@ class Agent(object):
             if not (expression and expression[0] == ';') and not (query and query[-1] in ('(', ')') and expression and expression[0] in ('(', ')')) and not (query and query[-1] == '('):
                 query += " "
 
+        # print "prefix query -----------",query
         query = "%s%s" % (query, expression)
 
+        # print "prefix -----------",query
         return query
 
     def suffixQuery(self, expression, comment=None, suffix=None, where=None):
@@ -256,6 +260,7 @@ class Agent(object):
             where = kb.injection.data[kb.technique].where if where is None else where
             comment = kb.injection.data[kb.technique].comment if comment is None else comment
 
+        print "queries ---",queries[DBMS.MAXDB].comment.query
         if Backend.getIdentifiedDbms() == DBMS.ACCESS and comment == GENERIC_SQL_COMMENT:
             comment = queries[DBMS.ACCESS].comment.query
 
@@ -281,6 +286,10 @@ class Agent(object):
                 ("[AT_REPLACE]", kb.chars.at), ("[SPACE_REPLACE]", kb.chars.space), ("[DOLLAR_REPLACE]", kb.chars.dollar),\
                 ("[HASH_REPLACE]", kb.chars.hash_),
             )
+
+        # print "_"
+        # print _
+        # print "-----------------------------------------------------"
         payload = reduce(lambda x, y: x.replace(y[0], y[1]), _, payload)
 
         for _ in set(re.findall(r"\[RANDNUM(?:\d+)?\]", payload, re.I)):

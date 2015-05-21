@@ -2494,7 +2494,16 @@ def init():
     _setWriteFile()
     _setMetasploit()
     _setDBMSAuthentication()
+    conf_info_file = open("conf_info_before.txt","w+")
     loadPayloads()
+    """
+    conf_info_file = open("conf_info_before.txt","w+")
+    print "---------------- Before getPageTemplate --- conf -----------------------"
+    for key  in conf.keys():
+        print >> conf_info_file, key,"------",conf[key]
+    conf_info_file.close()
+    print "------------------------------------------------------------------"
+    """
     _setPrefixSuffix()
     update()
     _loadQueries()

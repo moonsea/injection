@@ -274,6 +274,7 @@ def checkSqlInjection(place, parameter, value):
 
             # Parse test's <request>
             comment = agent.getComment(test.request) if len(conf.boundaries) > 1 else None
+            # print "value---",value
             fstPayload = agent.cleanupPayload(test.request.payload, origValue=value if place not in (PLACE.URI, PLACE.CUSTOM_POST, PLACE.CUSTOM_HEADER) else None)
 
             # Favoring non-string specific boundaries in case of digit-like parameter values
@@ -341,6 +342,8 @@ def checkSqlInjection(place, parameter, value):
                     templatePayload = None
                     vector = None
 
+                    # print "place ------",place
+                    # print "parameter ------",parameter
                     # Threat the parameter original value according to the
                     # test's <where> tag
                     if where == PAYLOAD.WHERE.ORIGINAL or conf.prefix:

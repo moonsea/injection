@@ -106,6 +106,8 @@ def main():
         """
 
         initOptions(cmdLineOptions)
+        # print "----------------------------------"
+        # print kb.chars
 
         """
         if hasattr(conf, "api"):
