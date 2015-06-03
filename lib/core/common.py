@@ -1078,7 +1078,7 @@ def setPaths():
     paths.SQLMAP_XML_BANNER_PATH = os.path.join(paths.SQLMAP_XML_PATH, "banner")
 
     #_ = os.path.join(os.path.expanduser("~"), ".sqlmap")
-    _ = os.path.join(paths.SQLMAP_ROOT_PATH,".sqlmap")
+    _ = os.path.join(paths.SQLMAP_ROOT_PATH,".injection")
     paths.SQLMAP_OUTPUT_PATH = getUnicode(paths.get("SQLMAP_OUTPUT_PATH", os.path.join(_, "output")), encoding=sys.getfilesystemencoding())
     #print paths.SQLMAP_OUTPUT_PATH
     paths.SQLMAP_DUMP_PATH = os.path.join(paths.SQLMAP_OUTPUT_PATH, "%s", "dump")
@@ -2915,6 +2915,10 @@ def createGithubIssue(errMsg, excMsg):
         test = None
 
     if test and test[0] in ("y", "Y"):
+
+        banner()
+
+        """
         ex = None
         errMsg = errMsg[errMsg.find("\n"):]
 
@@ -2943,6 +2947,7 @@ def createGithubIssue(errMsg, excMsg):
             if ex:
                 warnMsg += " ('%s')" % ex
             logger.warn(warnMsg)
+        """
 
 def maskSensitiveData(msg):
     """
