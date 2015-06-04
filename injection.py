@@ -26,7 +26,7 @@ from lib.core.common import getUnicode
 from lib.core.common import maskSensitiveData
 from lib.core.common import setColor
 from lib.core.common import setPaths
-from lib.core.common import weAreFrozen
+#from lib.core.common import weAreFrozen
 from lib.core.data import cmdLineOptions
 from lib.core.data import conf
 from lib.core.data import kb
@@ -49,26 +49,13 @@ from lib.parse.cmdline import cmdLineParser
 
 def modulePath():
     """
-    This will get us the program's directory, even if we are frozen
-    using py2exe
+    This will get us the program's directory
     """
 
     try:
-        _ = sys.executable if weAreFrozen() else __file__
+        _ = __file__
     except NameError:
         _ = inspect.getsourcefile(modulePath)
-
-    '''
-    print "_:"
-    print _
-    print "__file__:"
-    print __file__
-    print "real path:"
-    print getUnicode(_,sys.getfilesystemencoding())
-    print sys.getfilesystemencoding()
-    print os.path.realpath(getUnicode(_,sys.getfilesystemencoding()))
-    print "------------------------------------------------"
-    '''
 
     return os.path.dirname(os.path.realpath(getUnicode(_, sys.getfilesystemencoding())))
 
@@ -88,7 +75,8 @@ def main():
     """
 
     try:
-        paths.SQLMAP_ROOT_PATH = modulePath()#Get current path of sqlmap.py
+        # paths.SQLMAP_ROOT_PATH = modulePath()#Get current path of sqlmap.py
+        paths.INJECTION_ROOT_PATH= modulePath()#Get current path of sqlmap.py
         setPaths()
 
         # Store original command line options for possible later restoration

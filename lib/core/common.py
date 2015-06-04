@@ -1067,18 +1067,18 @@ def setPaths():
     """
 
     # sqlmap paths
-    paths.SQLMAP_EXTRAS_PATH = os.path.join(paths.SQLMAP_ROOT_PATH, "extra")
-    paths.SQLMAP_PROCS_PATH = os.path.join(paths.SQLMAP_ROOT_PATH, "procs")
-    paths.SQLMAP_SHELL_PATH = os.path.join(paths.SQLMAP_ROOT_PATH, "shell")
-    paths.SQLMAP_TAMPER_PATH = os.path.join(paths.SQLMAP_ROOT_PATH, "tamper")
-    paths.SQLMAP_WAF_PATH = os.path.join(paths.SQLMAP_ROOT_PATH, "waf")
-    paths.SQLMAP_TXT_PATH = os.path.join(paths.SQLMAP_ROOT_PATH, "txt")
-    paths.SQLMAP_UDF_PATH = os.path.join(paths.SQLMAP_ROOT_PATH, "udf")
-    paths.SQLMAP_XML_PATH = os.path.join(paths.SQLMAP_ROOT_PATH, "xml")
+    paths.SQLMAP_EXTRAS_PATH = os.path.join(paths.INJECTION_ROOT_PATH, "extra")
+    paths.SQLMAP_PROCS_PATH = os.path.join(paths.INJECTION_ROOT_PATH, "procs")
+    paths.SQLMAP_SHELL_PATH = os.path.join(paths.INJECTION_ROOT_PATH, "shell")
+    paths.SQLMAP_TAMPER_PATH = os.path.join(paths.INJECTION_ROOT_PATH, "tamper")
+    paths.SQLMAP_WAF_PATH = os.path.join(paths.INJECTION_ROOT_PATH, "waf")
+    paths.SQLMAP_TXT_PATH = os.path.join(paths.INJECTION_ROOT_PATH, "txt")
+    paths.SQLMAP_UDF_PATH = os.path.join(paths.INJECTION_ROOT_PATH, "udf")
+    paths.SQLMAP_XML_PATH = os.path.join(paths.INJECTION_ROOT_PATH, "xml")
     paths.SQLMAP_XML_BANNER_PATH = os.path.join(paths.SQLMAP_XML_PATH, "banner")
 
     #_ = os.path.join(os.path.expanduser("~"), ".sqlmap")
-    _ = os.path.join(paths.SQLMAP_ROOT_PATH,".injection")
+    _ = os.path.join(paths.INJECTION_ROOT_PATH,".injection")
     paths.SQLMAP_OUTPUT_PATH = getUnicode(paths.get("SQLMAP_OUTPUT_PATH", os.path.join(_, "output")), encoding=sys.getfilesystemencoding())
     #print paths.SQLMAP_OUTPUT_PATH
     paths.SQLMAP_DUMP_PATH = os.path.join(paths.SQLMAP_OUTPUT_PATH, "%s", "dump")
@@ -1089,7 +1089,7 @@ def setPaths():
     paths.SQL_SHELL_HISTORY = os.path.join(_, "sql.hst")
     paths.SQLMAP_SHELL_HISTORY = os.path.join(_, "sqlmap.hst")
     paths.GITHUB_HISTORY = os.path.join(_, "github.hst")
-    paths.SQLMAP_CONFIG_PATH = getUnicode(paths.get("SQLMAP_CONFIG_PATH",os.path.join(paths.SQLMAP_ROOT_PATH,"save")),encoding = sys.getfilesystemencoding())
+    paths.SQLMAP_CONFIG_PATH = getUnicode(paths.get("SQLMAP_CONFIG_PATH",os.path.join(paths.INJECTION_ROOT_PATH,"save")),encoding = sys.getfilesystemencoding())
     paths.SQLMAP_CONFIG = os.path.join(paths.SQLMAP_CONFIG_PATH, "sqlmap-%s.conf" % randomStr())
     paths.COMMON_COLUMNS = os.path.join(paths.SQLMAP_TXT_PATH, "common-columns.txt")
     paths.COMMON_TABLES = os.path.join(paths.SQLMAP_TXT_PATH, "common-tables.txt")
