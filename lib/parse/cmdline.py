@@ -49,9 +49,9 @@ def cmdLineParser():
     parser = OptionParser(usage=usage)
 
     try:
-        parser.add_option("--hh", dest="advancedHelp",
-                          action="store_true",
-                          help="Show advanced help message and exit")
+        # parser.add_option("--hh", dest="advancedHelp",
+        #                   action="store_true",
+        #                   help="Repairing")
 
         parser.add_option("--version", dest="showVersion",
                           action="store_true",
@@ -750,19 +750,19 @@ def cmdLineParser():
 
         parser.add_option_group(target)
         parser.add_option_group(request)
-        parser.add_option_group(optimization)
+        # parser.add_option_group(optimization)
         parser.add_option_group(injection)
         parser.add_option_group(detection)
         parser.add_option_group(techniques)
-        parser.add_option_group(fingerprint)
+        # parser.add_option_group(fingerprint)
         parser.add_option_group(enumeration)
         parser.add_option_group(brute)
-        parser.add_option_group(udf)
-        parser.add_option_group(filesystem)
-        parser.add_option_group(takeover)
-        parser.add_option_group(windows)
+        # parser.add_option_group(udf)
+        # parser.add_option_group(filesystem)
+        # parser.add_option_group(takeover)
+        # parser.add_option_group(windows)
         parser.add_option_group(general)
-        parser.add_option_group(miscellaneous)
+        # parser.add_option_group(miscellaneous)
 
         # Dirty hack to display longer options without breaking into two lines
         def _(self, *args):
@@ -775,9 +775,9 @@ def cmdLineParser():
         parser.formatter.format_option_strings = type(parser.formatter.format_option_strings)(_, parser, type(parser))
 
         # Dirty hack for making a short option -hh
-        option = parser.get_option("--hh")
-        option._short_opts = ["-hh"]
-        option._long_opts = []
+        # option = parser.get_option("--hh")
+        # option._short_opts = ["-hh"]
+        # option._long_opts = []
 
         # Dirty hack for inherent help message of switch -h
         option = parser.get_option("-h")
@@ -785,68 +785,69 @@ def cmdLineParser():
 
         argv = []
         prompt = False
-        advancedHelp = True
+        advancedHelp = False
 
         for arg in sys.argv:
             argv.append(getUnicode(arg, encoding=sys.stdin.encoding))
 
         checkDeprecatedOptions(argv)
 
-        prompt = "--sqlmap-shell" in argv
+        # prompt = "--sqlmap-shell" in argv
 
-        if prompt:
-            parser.usage = ""
-            cmdLineOptions.sqlmapShell = True
+        # if prompt:
+        #     parser.usage = ""
+        #     cmdLineOptions.sqlmapShell = True
 
-            _ = ["x", "q", "exit", "quit", "clear"]
+        #     _ = ["x", "q", "exit", "quit", "clear"]
 
-            for option in parser.option_list:
-                _.extend(option._long_opts)
-                _.extend(option._short_opts)
+        #     for option in parser.option_list:
+        #         _.extend(option._long_opts)
+        #         _.extend(option._short_opts)
 
-            for group in parser.option_groups:
-                for option in group.option_list:
-                    _.extend(option._long_opts)
-                    _.extend(option._short_opts)
+        #     for group in parser.option_groups:
+        #         for option in group.option_list:
+        #             _.extend(option._long_opts)
+        #             _.extend(option._short_opts)
 
-            autoCompletion(AUTOCOMPLETE_TYPE.SQLMAP, commands=_)
+        #     autoCompletion(AUTOCOMPLETE_TYPE.SQLMAP, commands=_)
 
-            while True:
-                command = None
+        #     while True:
+        #         command = None
 
-                try:
-                    command = raw_input("sqlmap-shell> ").strip()
-                except (KeyboardInterrupt, EOFError):
-                    print
-                    raise SqlmapShellQuitException
+        #         try:
+        #             command = raw_input("sqlmap-shell> ").strip()
+        #         except (KeyboardInterrupt, EOFError):
+        #             print
+        #             raise SqlmapShellQuitException
 
-                if not command:
-                    continue
-                elif command.lower() == "clear":
-                    clearHistory()                    
-                    print "[i] history cleared"
-                    saveHistory(AUTOCOMPLETE_TYPE.SQLMAP)
-                elif command.lower() in ("x", "q", "exit", "quit"):
-                    raise SqlmapShellQuitException
-                elif command[0] != '-':
-                    print "[!] invalid option(s) provided"
-                    print "[i] proper example: '-u http://www.site.com/vuln.php?id=1 --banner'"
-                else:
-                    saveHistory(AUTOCOMPLETE_TYPE.SQLMAP)
-                    loadHistory(AUTOCOMPLETE_TYPE.SQLMAP)
-                    break
+        #         if not command:
+        #             continue
+        #         elif command.lower() == "clear":
+        #             clearHistory()                    
+        #             print "[i] history cleared"
+        #             saveHistory(AUTOCOMPLETE_TYPE.SQLMAP)
+        #         elif command.lower() in ("x", "q", "exit", "quit"):
+        #             raise SqlmapShellQuitException
+        #         elif command[0] != '-':
+        #             print "[!] invalid option(s) provided"
+        #             print "[i] proper example: '-u http://www.site.com/vuln.php?id=1 --banner'"
+        #         else:
+        #             saveHistory(AUTOCOMPLETE_TYPE.SQLMAP)
+        #             loadHistory(AUTOCOMPLETE_TYPE.SQLMAP)
+        #             break
 
-            for arg in shlex.split(command):
-                argv.append(getUnicode(arg, encoding=sys.stdin.encoding))
+        #     for arg in shlex.split(command):
+        #         argv.append(getUnicode(arg, encoding=sys.stdin.encoding))
 
         # Hide non-basic options in basic help case
         for i in xrange(len(argv)):
-            if argv[i] == "-hh":
-                argv[i] = "-h"
-            elif argv[i] == "--version":
+            # if argv[i] == "-hh":
+            #     argv[i] = "-h"
+            #     advancedHelp = False
+            if argv[i] == "--version":
                 print VERSION_STRING.split('/')[-1]
                 raise SystemExit
-            elif argv[i] == "-h":
+            elif argv[i] == "-h" or argv[i] == "-hh":
                 advancedHelp = False
                 for group in parser.option_groups[:]:
                     found = False
@@ -864,8 +865,8 @@ def cmdLineParser():
             print "\n[!] %s" % ex.object.encode("unicode-escape")
             raise SystemExit
         except SystemExit:
-            if "-h" in argv and not advancedHelp:
-                print "\n[!] to see full list of options run with '-hh'"
+            # if "-h" in argv and not advancedHelp:
+            #     print "\n[!] to see full list of options run with '-hh'"
             raise
 
         # Expand given mnemonic options (e.g. -z "ign,flu,bat")

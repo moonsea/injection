@@ -260,7 +260,7 @@ class Agent(object):
             where = kb.injection.data[kb.technique].where if where is None else where
             comment = kb.injection.data[kb.technique].comment if comment is None else comment
 
-        print "queries ---",queries[DBMS.MAXDB].comment.query
+        # print "queries ---",queries[DBMS.MAXDB].comment.query
         if Backend.getIdentifiedDbms() == DBMS.ACCESS and comment == GENERIC_SQL_COMMENT:
             comment = queries[DBMS.ACCESS].comment.query
 

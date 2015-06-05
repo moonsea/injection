@@ -13,7 +13,7 @@ import warnings
 warnings.filterwarnings(action="ignore", message=".*was already imported", category=UserWarning)
 warnings.filterwarnings(action="ignore", category=DeprecationWarning)
 
-from lib.utils import versioncheck
+# from lib.utils import versioncheck
 # this has to be the first non-standard import
 #   and the function just check the configuration of os
 
@@ -39,7 +39,7 @@ from lib.core.exception import SqlmapSilentQuitException
 from lib.core.exception import SqlmapUserQuitException
 from lib.core.option import initOptions
 from lib.core.option import init
-from lib.core.profiling import profile
+# from lib.core.profiling import profile
 from lib.core.settings import LEGAL_DISCLAIMER
 #from lib.core.testing import smokeTest
 #from lib.core.testing import liveTest
@@ -62,16 +62,6 @@ def modulePath():
 def main():
     """
     Main function of injection when running from command line.
-    """
-
-    """"
-    print " "
-    print "-------------------------------------------------------------------"
-    print "------------Just Test conf -------------------------------------------------"
-    for i in conf :
-        print i
-    print conf
-    print "-------------------------------------------------------------------"
     """
 
     try:
@@ -97,15 +87,6 @@ def main():
         # print "----------------------------------"
         # print kb.chars
 
-        """
-        if hasattr(conf, "api"):
-            # Overwrite system standard output and standard error to write
-            # to an IPC database
-            sys.stdout = StdDbOut(conf.taskid, messagetype="stdout")
-            sys.stderr = StdDbOut(conf.taskid, messagetype="stderr")
-            setRestAPILog()
-        """
-
         banner()
         #Show the banner of the software
 
@@ -115,14 +96,6 @@ def main():
 
         init()
         #According to the input parameters, set the configure of the software
-
-        # if conf.profile:
-        #     profile()
-        # elif conf.smokeTest:
-        #     smokeTest()
-        # elif conf.liveTest:
-        #     liveTest()
-        # else:
 
         start()
 
@@ -180,27 +153,6 @@ def main():
 
         kb.threadContinue = False
         kb.threadException = True
-
-        if conf.get("hashDB"):
-            try:
-                conf.hashDB.flush(True)
-            except KeyboardInterrupt:
-                pass
-
-        if cmdLineOptions.get("sqlmapShell"):
-            cmdLineOptions.clear()
-            conf.clear()
-            kb.clear()
-            main()
-
-        if hasattr(conf, "api"):
-            try:
-                conf.database_cursor.disconnect()
-            except KeyboardInterrupt:
-                pass
-
-        if conf.get("dumper"):
-            conf.dumper.flush()
 
         # Reference: http://stackoverflow.com/questions/1635080/terminate-a-multi-thread-python-program
         if conf.get("threads", 0) > 1 or conf.get("dnsServer"):
