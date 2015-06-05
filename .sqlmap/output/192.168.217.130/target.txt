@@ -1,1 +1,0 @@
-http://192.168.217.130/sqli/example4.php?id=2 (GET)

@@ -1,3 +1,0 @@
-http://hlntc.cyc.org.tw:80/SearchAdd.asp (POST)
-
-K=auJw

