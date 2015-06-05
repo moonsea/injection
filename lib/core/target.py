@@ -1,9 +1,5 @@
 #!/usr/bin/env python
 
-"""
-Copyright (c) 2006-2014 sqlmap developers (http://sqlmap.org/)
-See the file 'doc/COPYING' for copying permission
-"""
 
 import codecs
 import functools
@@ -73,16 +69,20 @@ def _setRequestParams():
     HTTP method POST.
     """
 
-    if conf.direct:
-        conf.parameters[None] = "direct connection"
-        return
+    # if conf.direct:
+    #     conf.parameters[None] = "direct connection"
+    #     return
 
     testableParameters = False
 
     # Perform checks on GET parameters
     if conf.parameters.get(PLACE.GET):
+        # print "csrfToken"
         parameters = conf.parameters[PLACE.GET]
+        # print "csrfToken"
         paramDict = paramToDict(PLACE.GET, parameters)
+        # print "csrfToken"
+
 
         if paramDict:
             conf.paramDict[PLACE.GET] = paramDict
@@ -92,6 +92,7 @@ def _setRequestParams():
     if conf.method == HTTPMETHOD.POST and conf.data is None:
         errMsg = "HTTP POST method depends on HTTP data value to be posted"
         raise SqlmapSyntaxException(errMsg)
+
 
     if conf.data is not None:
         conf.method = HTTPMETHOD.POST if not conf.method or conf.method == HTTPMETHOD.GET else conf.method
@@ -122,7 +123,7 @@ def _setRequestParams():
                 if kb.processUserMarks and "=%s" % CUSTOM_INJECTION_MARK_CHAR in conf.data:
                     warnMsg = "it seems that you've provided empty parameter value(s) "
                     warnMsg += "for testing. Please, always use only valid parameter values "
-                    warnMsg += "so sqlmap could be able to run properly"
+                    warnMsg += "so injection could be able to run properly"
                     logger.warn(warnMsg)
 
         if not (kb.processUserMarks and CUSTOM_INJECTION_MARK_CHAR in conf.data):
@@ -166,6 +167,7 @@ def _setRequestParams():
                     conf.data = conf.data.replace(CUSTOM_INJECTION_MARK_CHAR, ASTERISK_MARKER)
                     conf.data = re.sub(r"(=[^%s]+)" % DEFAULT_GET_POST_DELIMITER, r"\g<1>%s" % CUSTOM_INJECTION_MARK_CHAR, conf.data)
                     kb.postHint = POST_HINT.ARRAY_LIKE
+
 
             elif re.search(XML_RECOGNITION_REGEX, conf.data):
                 message = "SOAP/XML data found in %s data. " % conf.method
@@ -240,7 +242,7 @@ def _setRequestParams():
                     if kb.processUserMarks and "=%s" % CUSTOM_INJECTION_MARK_CHAR in _:
                         warnMsg = "it seems that you've provided empty parameter value(s) "
                         warnMsg += "for testing. Please, always use only valid parameter values "
-                        warnMsg += "so sqlmap could be able to run properly"
+                        warnMsg += "so injection could be able to run properly"
                         logger.warn(warnMsg)
 
             if not kb.processUserMarks:
@@ -301,6 +303,7 @@ def _setRequestParams():
             conf.paramDict[PLACE.COOKIE] = paramDict
             testableParameters = True
 
+
     # Perform checks on header values
     if conf.httpHeaders:
         for httpHeader, headerValue in conf.httpHeaders:
@@ -346,21 +349,22 @@ def _setRequestParams():
         errMsg += "within the given request data"
         raise SqlmapGenericException(errMsg)
 
-    if conf.csrfToken:
-        if not any(conf.csrfToken in _ for _ in (conf.paramDict.get(PLACE.GET, {}), conf.paramDict.get(PLACE.POST, {}))) and not conf.csrfToken in set(_[0].lower() for _ in conf.httpHeaders) and not conf.csrfToken in conf.paramDict.get(PLACE.COOKIE, {}):
-            errMsg = "CSRF protection token parameter '%s' not " % conf.csrfToken
-            errMsg += "found in provided GET, POST, Cookie or header values"
-            raise SqlmapGenericException(errMsg)
-    else:
-        for place in (PLACE.GET, PLACE.POST, PLACE.COOKIE):
-            for parameter in conf.paramDict.get(place, {}):
-                if any(parameter.lower().count(_) for _ in CSRF_TOKEN_PARAMETER_INFIXES):
-                    message = "%s parameter '%s' appears to hold CSRF protection token. " % (place, parameter)
-                    message += "Do you want sqlmap to automatically update it in further requests? [y/N] "
-                    test = readInput(message, default="N")
-                    if test and test[0] in ("y", "Y"):
-                        conf.csrfToken = parameter
-                    break
+    # print "csrfToken"
+    # if conf.csrfToken:
+    #     if not any(conf.csrfToken in _ for _ in (conf.paramDict.get(PLACE.GET, {}), conf.paramDict.get(PLACE.POST, {}))) and not conf.csrfToken in set(_[0].lower() for _ in conf.httpHeaders) and not conf.csrfToken in conf.paramDict.get(PLACE.COOKIE, {}):
+    #         errMsg = "CSRF protection token parameter '%s' not " % conf.csrfToken
+    #         errMsg += "found in provided GET, POST, Cookie or header values"
+    #         raise SqlmapGenericException(errMsg)
+    # else:
+    # for place in (PLACE.GET, PLACE.POST, PLACE.COOKIE):
+    #     for parameter in conf.paramDict.get(place, {}):
+    #         if any(parameter.lower().count(_) for _ in CSRF_TOKEN_PARAMETER_INFIXES):
+    #             message = "%s parameter '%s' appears to hold CSRF protection token. " % (place, parameter)
+    #             message += "Do you want injection to automatically update it in further requests? [y/N] "
+    #             test = readInput(message, default="N")
+    #             if test and test[0] in ("y", "Y"):
+    #                 conf.csrfToken = parameter
+    #                 break
 
 def _setHashDB():
     """
@@ -370,14 +374,14 @@ def _setHashDB():
     if not conf.hashDBFile:
         conf.hashDBFile = conf.sessionFile or os.path.join(conf.outputPath, "session.sqlite")
 
-    if os.path.exists(conf.hashDBFile):
-        if conf.flushSession:
-            try:
-                os.remove(conf.hashDBFile)
-                logger.info("flushing session file")
-            except OSError, msg:
-                errMsg = "unable to flush the session file (%s)" % msg
-                raise SqlmapFilePathException(errMsg)
+    # if os.path.exists(conf.hashDBFile):
+        # if conf.flushSession:
+        #     try:
+        #         os.remove(conf.hashDBFile)
+        #         logger.info("flushing session file")
+        #     except OSError, msg:
+        #         errMsg = "unable to flush the session file (%s)" % msg
+        #         raise SqlmapFilePathException(errMsg)
 
     conf.hashDB = HashDB(conf.hashDBFile)
 
@@ -393,7 +397,7 @@ def _resumeHashDBValues():
     kb.brute.columns = hashDBRetrieve(HASHDB_KEYS.KB_BRUTE_COLUMNS, True) or kb.brute.columns
     kb.xpCmdshellAvailable = hashDBRetrieve(HASHDB_KEYS.KB_XP_CMDSHELL_AVAILABLE) or kb.xpCmdshellAvailable
 
-    conf.tmpPath = conf.tmpPath or hashDBRetrieve(HASHDB_KEYS.CONF_TMP_PATH)
+    # conf.tmpPath = conf.tmpPath or hashDBRetrieve(HASHDB_KEYS.CONF_TMP_PATH)
 
     for injection in hashDBRetrieve(HASHDB_KEYS.KB_INJECTIONS, True) or []:
         if isinstance(injection, InjectionDict) and injection.place in conf.paramDict and \
@@ -438,7 +442,7 @@ def _resumeDBMS():
         if not check:
             message = "you provided '%s' as a back-end DBMS, " % conf.dbms
             message += "but from a past scan information on the target URL "
-            message += "sqlmap assumes the back-end DBMS is '%s'. " % dbms
+            message += "injection assumes the back-end DBMS is '%s'. " % dbms
             message += "Do you really want to force the back-end "
             message += "DBMS value? [y/N] "
             test = readInput(message, default="N")
@@ -473,7 +477,7 @@ def _resumeOS():
         if conf.os and conf.os.lower() != os.lower():
             message = "you provided '%s' as back-end DBMS operating " % conf.os
             message += "system, but from a past scan information on the "
-            message += "target URL sqlmap assumes the back-end DBMS "
+            message += "target URL injection assumes the back-end DBMS "
             message += "operating system is %s. " % os
             message += "Do you really want to force the back-end DBMS "
             message += "OS value? [y/N] "
@@ -496,33 +500,33 @@ def _setResultsFile():
         return
 
     if not conf.resultsFP:
-        conf.resultsFilename = os.path.join(paths.SQLMAP_OUTPUT_PATH, time.strftime(RESULTS_FILE_FORMAT).lower())
+        conf.resultsFilename = os.path.join(paths.INJECTION_OUTPUT_PATH, time.strftime(RESULTS_FILE_FORMAT).lower())
         conf.resultsFP = codecs.open(conf.resultsFilename, "w+", UNICODE_ENCODING, buffering=0)
         conf.resultsFP.writelines("Target URL,Place,Parameter,Techniques%s" % os.linesep)
 
         logger.info("using '%s' as the CSV results file in multiple targets mode" % conf.resultsFilename)
 
-def _createFilesDir():
-    """
-    Create the file directory.
-    """
+# def _createFilesDir():
+#     """
+#     Create the file directory.
+#     """
 
-    if not conf.rFile:
-        return
+#     if not conf.rFile:
+#         return
 
-    conf.filePath = paths.SQLMAP_FILES_PATH % conf.hostname
+#     conf.filePath = paths.INJECTION_FILES_PATH % conf.hostname
 
-    if not os.path.isdir(conf.filePath):
-        try:
-            os.makedirs(conf.filePath, 0755)
-        except OSError, ex:
-            tempDir = tempfile.mkdtemp(prefix="sqlmapfiles")
-            warnMsg = "unable to create files directory "
-            warnMsg += "'%s' (%s). " % (conf.filePath, ex)
-            warnMsg += "Using temporary directory '%s' instead" % tempDir
-            logger.warn(warnMsg)
+#     if not os.path.isdir(conf.filePath):
+#         try:
+#             os.makedirs(conf.filePath, 0755)
+#         except OSError, ex:
+#             tempDir = tempfile.mkdtemp(prefix="sqlmapfiles")
+#             warnMsg = "unable to create files directory "
+#             warnMsg += "'%s' (%s). " % (conf.filePath, ex)
+#             warnMsg += "Using temporary directory '%s' instead" % tempDir
+#             logger.warn(warnMsg)
 
-            conf.filePath = tempDir
+#             conf.filePath = tempDir
 
 def _createDumpDir():
     """
@@ -532,13 +536,13 @@ def _createDumpDir():
     if not conf.dumpTable and not conf.dumpAll and not conf.search:
         return
 
-    conf.dumpPath = paths.SQLMAP_DUMP_PATH % conf.hostname
+    conf.dumpPath = paths.INJECTION_DUMP_PATH % conf.hostname
 
     if not os.path.isdir(conf.dumpPath):
         try:
             os.makedirs(conf.dumpPath, 0755)
         except OSError, ex:
-            tempDir = tempfile.mkdtemp(prefix="sqlmapdump")
+            tempDir = tempfile.mkdtemp(prefix="injectiondump")
             warnMsg = "unable to create dump directory "
             warnMsg += "'%s' (%s). " % (conf.dumpPath, ex)
             warnMsg += "Using temporary directory '%s' instead" % tempDir
@@ -547,10 +551,11 @@ def _createDumpDir():
             conf.dumpPath = tempDir
 
 def _configureDumper():
-    if hasattr(conf, 'xmlFile') and conf.xmlFile:
-        conf.dumper = xmldumper
-    else:
-        conf.dumper = dumper
+    # if hasattr(conf, 'xmlFile') and conf.xmlFile:
+    #     conf.dumper = xmldumper
+    # else:
+    #     conf.dumper = dumper
+    conf.dumper = dumper
 
     conf.dumper.setOutputFile()
 
@@ -559,15 +564,15 @@ def _createTargetDirs():
     Create the output directory.
     """
 
-    if not os.path.isdir(paths.SQLMAP_OUTPUT_PATH):
+    if not os.path.isdir(paths.INJECTION_OUTPUT_PATH):
         try:
-            if not os.path.isdir(paths.SQLMAP_OUTPUT_PATH):
-                os.makedirs(paths.SQLMAP_OUTPUT_PATH, 0755)
-            warnMsg = "using '%s' as the output directory" % paths.SQLMAP_OUTPUT_PATH
+            if not os.path.isdir(paths.INJECTION_OUTPUT_PATH):
+                os.makedirs(paths.INJECTION_OUTPUT_PATH, 0755)
+            warnMsg = "using '%s' as the output directory" % paths.INJECTION_OUTPUT_PATH
             logger.warn(warnMsg)
         except OSError, ex:
             try:
-                tempDir = tempfile.mkdtemp(prefix="sqlmapoutput")
+                tempDir = tempfile.mkdtemp(prefix="injectionoutput")
             except IOError, _:
                 errMsg = "unable to write to the temporary directory ('%s'). " % _
                 errMsg += "Please make sure that your disk is not full and "
@@ -575,20 +580,20 @@ def _createTargetDirs():
                 errMsg += "create temporary files and/or directories"
                 raise SqlmapGenericException(errMsg)
             warnMsg = "unable to create regular output directory "
-            warnMsg += "'%s' (%s). " % (paths.SQLMAP_OUTPUT_PATH, ex)
+            warnMsg += "'%s' (%s). " % (paths.INJECTION_OUTPUT_PATH, ex)
             warnMsg += "Using temporary directory '%s' instead" % tempDir
             logger.warn(warnMsg)
 
-            paths.SQLMAP_OUTPUT_PATH = tempDir
+            paths.INJECTION_OUTPUT_PATH = tempDir
 
-    conf.outputPath = os.path.join(getUnicode(paths.SQLMAP_OUTPUT_PATH), normalizeUnicode(getUnicode(conf.hostname)))
+    conf.outputPath = os.path.join(getUnicode(paths.INJECTION_OUTPUT_PATH), normalizeUnicode(getUnicode(conf.hostname)))
 
     if not os.path.isdir(conf.outputPath):
         try:
             os.makedirs(conf.outputPath, 0755)
         except OSError, ex:
             try:
-                tempDir = tempfile.mkdtemp(prefix="sqlmapoutput")
+                tempDir = tempfile.mkdtemp(prefix="injectionoutput")
             except IOError, _:
                 errMsg = "unable to write to the temporary directory ('%s'). " % _
                 errMsg += "Please make sure that your disk is not full and "
@@ -613,12 +618,12 @@ def _createTargetDirs():
             errMsg = "you don't have enough permissions "
         else:
             errMsg = "something went wrong while trying "
-        errMsg += "to write to the output directory '%s' (%s)" % (paths.SQLMAP_OUTPUT_PATH, ex)
+        errMsg += "to write to the output directory '%s' (%s)" % (paths.INJECTION_OUTPUT_PATH, ex)
 
         raise SqlmapMissingPrivileges(errMsg)
 
     _createDumpDir()
-    _createFilesDir()
+    # _createFilesDir()
     _configureDumper()
 
 def _restoreMergedOptions():

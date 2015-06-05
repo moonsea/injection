@@ -365,7 +365,7 @@ ASP_NET_CONTROL_REGEX = r"(?i)\Actl\d+\$"
 GOOGLE_ANALYTICS_COOKIE_PREFIX = "__UTM"
 
 # Prefix for configuration overriding environment variables
-SQLMAP_ENVIRONMENT_PREFIX = "SQLMAP_"
+INJECTION_ENVIRONMENT_PREFIX = "INJECTION_"
 
 # Turn off resume console info to avoid potential slowdowns
 TURN_OFF_RESUME_INFO_LIMIT = 20

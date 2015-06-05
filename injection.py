@@ -64,16 +64,6 @@ def main():
     Main function of injection when running from command line.
     """
 
-    """"
-    print " "
-    print "-------------------------------------------------------------------"
-    print "------------Just Test conf -------------------------------------------------"
-    for i in conf :
-        print i
-    print conf
-    print "-------------------------------------------------------------------"
-    """
-
     try:
         # paths.SQLMAP_ROOT_PATH = modulePath()#Get current path of sqlmap.py
         paths.INJECTION_ROOT_PATH= modulePath()#Get current path of sqlmap.py
@@ -82,29 +72,9 @@ def main():
         # Store original command line options for possible later restoration
         cmdLineOptions.update(cmdLineParser().__dict__)
 
-        """
-        ###Get the options from cmdline command
-        print "-----------------------------------------------------------------"
-        print "---------------------  cmdLineOptions ---------------------------"
-        print cmdLineOptions
-        print "----------------------------------------------------------------"
-        for i in cmdLineOptions.keys() :
-            print i,"---------",cmdLineOptions[i]
-        print "-----------------------------------------------------------------"
-        """
-
         initOptions(cmdLineOptions)
         # print "----------------------------------"
-        # print kb.chars
-
-        """
-        if hasattr(conf, "api"):
-            # Overwrite system standard output and standard error to write
-            # to an IPC database
-            sys.stdout = StdDbOut(conf.taskid, messagetype="stdout")
-            sys.stderr = StdDbOut(conf.taskid, messagetype="stderr")
-            setRestAPILog()
-        """
+        # print kb.chars      
 
         banner()
         #Show the banner of the software
@@ -116,29 +86,15 @@ def main():
         init()
         #According to the input parameters, set the configure of the software
 
-        if conf.profile:
-            profile()
-        elif conf.smokeTest:
-            smokeTest()
-        elif conf.liveTest:
-            liveTest()
-        else:
+        # if conf.profile:
+        #     profile()
+        # elif conf.smokeTest:
+        #     smokeTest()
+        # elif conf.liveTest:
+        #     liveTest()
+        # else:
 
-            """
-            print "-------------------------  kb ------------------------------------"
-            kb_info_file = open("kb_info_file","w+")
-            for key in kb.keys():
-                print >> kb_info_file, key,"-------",kb[key]
-            print "------------------------------------------------------------------"
-
-            info_file = open("conf_info_file.txt","w+")
-            print "-----------------------  conf ----------------------------------"
-            for key  in conf.keys():
-                print >> info_file, key,"------",conf[key]
-            info_file.close()
-            print "------------------------------------------------------------------"
-            """
-            start()
+        start()
 
     except SqlmapUserQuitException:
         errMsg = "user quit"

@@ -300,8 +300,8 @@ class Connect(object):
                 if PLACE.GET in conf.parameters and not get:
                     get = conf.parameters[PLACE.GET]
 
-                    if not conf.skipUrlEncode:
-                        get = urlencode(get, limit=True)
+                    # if not conf.skipUrlEncode:
+                    get = urlencode(get, limit=True)
 
                 if get:
                     url = "%s?%s" % (url, get)
@@ -614,8 +614,8 @@ class Connect(object):
         """
 
         ###########  Connect the Database directly
-        if conf.direct:
-            return direct(value, content)
+        # if conf.direct:
+        #     return direct(value, content)
 
         get = None
         post = None
@@ -659,7 +659,7 @@ class Connect(object):
             headers = OrderedDict(conf.httpHeaders)
             contentType = max(headers[_] if _.upper() == HTTP_HEADER.CONTENT_TYPE.upper() else None for _ in headers.keys())
 
-            if (kb.postHint or conf.skipUrlEncode) and kb.postUrlEncode:
+            if (kb.postHint ) and kb.postUrlEncode:
                 kb.postUrlEncode = False
                 conf.httpHeaders = [_ for _ in conf.httpHeaders if _[1] != contentType]
                 contentType = POST_HINT_CONTENT_TYPES.get(kb.postHint, PLAIN_TEXT_CONTENT_TYPE)
@@ -704,7 +704,7 @@ class Connect(object):
                 value = agent.replacePayload(value, payload)
             else:
                 # GET, POST, URI and Cookie payload needs to be throughly URL encoded
-                if place in (PLACE.GET, PLACE.URI, PLACE.COOKIE) and not conf.skipUrlEncode or place in (PLACE.POST, PLACE.CUSTOM_POST) and kb.postUrlEncode:
+                if place in (PLACE.GET, PLACE.URI, PLACE.COOKIE) or place in (PLACE.POST, PLACE.CUSTOM_POST) and kb.postUrlEncode:
                     payload = urlencode(payload, '%', False, place != PLACE.URI)  # spaceplus is handled down below
                     value = agent.replacePayload(value, payload)
 
@@ -771,55 +771,55 @@ class Connect(object):
         if value and place == PLACE.CUSTOM_HEADER:
             auxHeaders[value.split(',')[0]] = value.split(',', 1)[1]
 
-        if conf.csrfToken:
-            def _adjustParameter(paramString, parameter, newValue):
-                retVal = paramString
-                match = re.search("%s=(?P<value>[^&]*)" % re.escape(parameter), paramString)
-                if match:
-                    origValue = match.group("value")
-                    retVal = re.sub("%s=[^&]*" % re.escape(parameter), "%s=%s" % (parameter, newValue), paramString)
-                return retVal
+        # if conf.csrfToken:
+        #     def _adjustParameter(paramString, parameter, newValue):
+        #         retVal = paramString
+        #         match = re.search("%s=(?P<value>[^&]*)" % re.escape(parameter), paramString)
+        #         if match:
+        #             origValue = match.group("value")
+        #             retVal = re.sub("%s=[^&]*" % re.escape(parameter), "%s=%s" % (parameter, newValue), paramString)
+        #         return retVal
 
-            page, headers, code = Connect.getPage(url=conf.csrfUrl or conf.url, cookie=conf.parameters.get(PLACE.COOKIE), direct=True, silent=True, ua=conf.parameters.get(PLACE.USER_AGENT), referer=conf.parameters.get(PLACE.REFERER), host=conf.parameters.get(PLACE.HOST))
-            match = re.search(r"<input[^>]+name=[\"']?%s[\"']?\s[^>]*value=(\"([^\"]+)|'([^']+)|([^ >]+))" % re.escape(conf.csrfToken), page or "")
-            token = (match.group(2) or match.group(3) or match.group(4)) if match else None
+        #     page, headers, code = Connect.getPage(url=conf.csrfUrl or conf.url, cookie=conf.parameters.get(PLACE.COOKIE), direct=True, silent=True, ua=conf.parameters.get(PLACE.USER_AGENT), referer=conf.parameters.get(PLACE.REFERER), host=conf.parameters.get(PLACE.HOST))
+        #     match = re.search(r"<input[^>]+name=[\"']?%s[\"']?\s[^>]*value=(\"([^\"]+)|'([^']+)|([^ >]+))" % re.escape(conf.csrfToken), page or "")
+        #     token = (match.group(2) or match.group(3) or match.group(4)) if match else None
 
-            if not token:
-                if conf.csrfUrl != conf.url and code == httplib.OK:
-                    if headers and "text/plain" in headers.get(HTTP_HEADER.CONTENT_TYPE, ""):
-                        token = page
+        #     if not token:
+        #         if conf.csrfUrl != conf.url and code == httplib.OK:
+        #             if headers and "text/plain" in headers.get(HTTP_HEADER.CONTENT_TYPE, ""):
+        #                 token = page
 
-                if not token and any(_.name == conf.csrfToken for _ in conf.cj):
-                    for _ in conf.cj:
-                        if _.name == conf.csrfToken:
-                            token = _.value
-                            if not any (conf.csrfToken in _ for _ in (conf.paramDict.get(PLACE.GET, {}), conf.paramDict.get(PLACE.POST, {}))):
-                                if post:
-                                    post = "%s%s%s=%s" % (post, conf.paramDel or DEFAULT_GET_POST_DELIMITER, conf.csrfToken, token)
-                                elif get:
-                                    get = "%s%s%s=%s" % (get, conf.paramDel or DEFAULT_GET_POST_DELIMITER, conf.csrfToken, token)
-                                else:
-                                    get = "%s=%s" % (conf.csrfToken, token)
-                            break
+        #         if not token and any(_.name == conf.csrfToken for _ in conf.cj):
+        #             for _ in conf.cj:
+        #                 if _.name == conf.csrfToken:
+        #                     token = _.value
+        #                     if not any (conf.csrfToken in _ for _ in (conf.paramDict.get(PLACE.GET, {}), conf.paramDict.get(PLACE.POST, {}))):
+        #                         if post:
+        #                             post = "%s%s%s=%s" % (post, conf.paramDel or DEFAULT_GET_POST_DELIMITER, conf.csrfToken, token)
+        #                         elif get:
+        #                             get = "%s%s%s=%s" % (get, conf.paramDel or DEFAULT_GET_POST_DELIMITER, conf.csrfToken, token)
+        #                         else:
+        #                             get = "%s=%s" % (conf.csrfToken, token)
+        #                     break
 
-                if not token:
-                    errMsg = "CSRF protection token '%s' can't be found at '%s'" % (conf.csrfToken, conf.csrfUrl or conf.url)
-                    if not conf.csrfUrl:
-                        errMsg += ". You can try to rerun by providing "
-                        errMsg += "a valid value for option '--csrf-url'"
-                    raise SqlmapTokenException, errMsg
+        #         if not token:
+        #             errMsg = "CSRF protection token '%s' can't be found at '%s'" % (conf.csrfToken, conf.csrfUrl or conf.url)
+        #             if not conf.csrfUrl:
+        #                 errMsg += ". You can try to rerun by providing "
+        #                 errMsg += "a valid value for option '--csrf-url'"
+        #             raise SqlmapTokenException, errMsg
 
-            if token:
-                for place in (PLACE.GET, PLACE.POST):
-                    if place in conf.parameters:
-                        if place == PLACE.GET and get:
-                            get = _adjustParameter(get, conf.csrfToken, token)
-                        elif place == PLACE.POST and post:
-                            post = _adjustParameter(post, conf.csrfToken, token)
+        #     if token:
+        #         for place in (PLACE.GET, PLACE.POST):
+        #             if place in conf.parameters:
+        #                 if place == PLACE.GET and get:
+        #                     get = _adjustParameter(get, conf.csrfToken, token)
+        #                 elif place == PLACE.POST and post:
+        #                     post = _adjustParameter(post, conf.csrfToken, token)
 
-                for i in xrange(len(conf.httpHeaders)):
-                    if conf.httpHeaders[i][0].lower() == conf.csrfToken.lower():
-                        conf.httpHeaders[i] = (conf.httpHeaders[i][0], token)
+        #         for i in xrange(len(conf.httpHeaders)):
+        #             if conf.httpHeaders[i][0].lower() == conf.csrfToken.lower():
+        #                 conf.httpHeaders[i] = (conf.httpHeaders[i][0], token)
 
         if conf.rParam:
             def _randomizeParameter(paramString, randomParameter):
@@ -891,8 +891,8 @@ class Connect(object):
                             elif cookie is not None:
                                 cookie += "%s%s=%s" % (conf.cookieDel or DEFAULT_COOKIE_DELIMITER, name, value)
 
-        if not conf.skipUrlEncode:
-            get = urlencode(get, limit=True)
+        # if not conf.skipUrlEncode:
+        get = urlencode(get, limit=True)
 
         if post is not None:
             if place not in (PLACE.POST, PLACE.CUSTOM_POST) and hasattr(post, UNENCODED_ORIGINAL_VALUE):

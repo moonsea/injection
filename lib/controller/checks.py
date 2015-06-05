@@ -1264,7 +1264,7 @@ def checkNullConnection():
     return kb.nullConnection is not None
 
 def checkConnection(suppressOutput=False):
-    if not any((conf.proxy, conf.tor, conf.dummy)):
+    if not (conf.proxy):
         try:
             socket.getaddrinfo(conf.hostname, None)
         except socket.gaierror:
@@ -1275,7 +1275,7 @@ def checkConnection(suppressOutput=False):
             errMsg += "resolving a host name '%s' ('%s')" % (conf.hostname, str(ex))
             raise SqlmapConnectionException(errMsg)
 
-    if not suppressOutput and not conf.dummy:
+    if not suppressOutput:
         infoMsg = "testing connection to the target URL"
         logger.info(infoMsg)
 

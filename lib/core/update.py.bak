@@ -26,11 +26,11 @@ def update():
         return
 
     success = False
-    rootDir = paths.SQLMAP_ROOT_PATH
+    rootDir = paths.INJECTION_ROOT_PATH
 
     if not os.path.exists(os.path.join(rootDir, ".git")):
-        errMsg = "not a git repository. Please checkout the 'sqlmapproject/sqlmap' repository "
-        errMsg += "from GitHub (e.g. git clone https://github.com/sqlmapproject/sqlmap.git sqlmap-dev)"
+        errMsg = "not a git repository. Please checkout the 'moonsea/injection' repository "
+        errMsg += "from GitHub (e.g. git clone https://github.com/moonsea/injection.git injection-dev)"
         logger.error(errMsg)
     else:
         infoMsg = "updating sqlmap to the latest development version from the "

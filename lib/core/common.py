@@ -577,7 +577,7 @@ def paramToDict(place, parameters=None):
 
             if condition:
                 testableParameters[parameter] = "=".join(parts[1:])
-                if not conf.multipleTargets and not (conf.csrfToken and parameter == conf.csrfToken):
+                if not conf.multipleTargets:
                     _ = urldecode(testableParameters[parameter], convall=True)
                     if (_.strip(DUMMY_SQL_INJECTION_CHARS) != _\
                       or re.search(r'\A9{3,}', _) or re.search(DUMMY_USER_INJECTION, _))\
@@ -1067,46 +1067,46 @@ def setPaths():
     """
 
     # sqlmap paths
-    paths.SQLMAP_EXTRAS_PATH = os.path.join(paths.INJECTION_ROOT_PATH, "extra")
-    paths.SQLMAP_PROCS_PATH = os.path.join(paths.INJECTION_ROOT_PATH, "procs")
-    paths.SQLMAP_SHELL_PATH = os.path.join(paths.INJECTION_ROOT_PATH, "shell")
-    paths.SQLMAP_TAMPER_PATH = os.path.join(paths.INJECTION_ROOT_PATH, "tamper")
-    paths.SQLMAP_WAF_PATH = os.path.join(paths.INJECTION_ROOT_PATH, "waf")
-    paths.SQLMAP_TXT_PATH = os.path.join(paths.INJECTION_ROOT_PATH, "txt")
-    paths.SQLMAP_UDF_PATH = os.path.join(paths.INJECTION_ROOT_PATH, "udf")
-    paths.SQLMAP_XML_PATH = os.path.join(paths.INJECTION_ROOT_PATH, "xml")
-    paths.SQLMAP_XML_BANNER_PATH = os.path.join(paths.SQLMAP_XML_PATH, "banner")
+    paths.INJECTION_EXTRAS_PATH = os.path.join(paths.INJECTION_ROOT_PATH, "extra")
+    paths.INJECTION_PROCS_PATH = os.path.join(paths.INJECTION_ROOT_PATH, "procs")
+    paths.INJECTION_SHELL_PATH = os.path.join(paths.INJECTION_ROOT_PATH, "shell")
+    paths.INJECTION_TAMPER_PATH = os.path.join(paths.INJECTION_ROOT_PATH, "tamper")
+    paths.INJECTION_WAF_PATH = os.path.join(paths.INJECTION_ROOT_PATH, "waf")
+    paths.INJECTION_TXT_PATH = os.path.join(paths.INJECTION_ROOT_PATH, "txt")
+    paths.INJECTION_UDF_PATH = os.path.join(paths.INJECTION_ROOT_PATH, "udf")
+    paths.INJECTION_XML_PATH = os.path.join(paths.INJECTION_ROOT_PATH, "xml")
+    paths.INJECTION_XML_BANNER_PATH = os.path.join(paths.INJECTION_XML_PATH, "banner")
 
     #_ = os.path.join(os.path.expanduser("~"), ".sqlmap")
     _ = os.path.join(paths.INJECTION_ROOT_PATH,".injection")
-    paths.SQLMAP_OUTPUT_PATH = getUnicode(paths.get("SQLMAP_OUTPUT_PATH", os.path.join(_, "output")), encoding=sys.getfilesystemencoding())
-    #print paths.SQLMAP_OUTPUT_PATH
-    paths.SQLMAP_DUMP_PATH = os.path.join(paths.SQLMAP_OUTPUT_PATH, "%s", "dump")
-    paths.SQLMAP_FILES_PATH = os.path.join(paths.SQLMAP_OUTPUT_PATH, "%s", "files")
+    paths.INJECTION_OUTPUT_PATH = getUnicode(paths.get("INJECTION_OUTPUT_PATH", os.path.join(_, "output")), encoding=sys.getfilesystemencoding())
+    #print paths.INJECTION_OUTPUT_PATH
+    paths.INJECTION_DUMP_PATH = os.path.join(paths.INJECTION_OUTPUT_PATH, "%s", "dump")
+    paths.INJECTION_FILES_PATH = os.path.join(paths.INJECTION_OUTPUT_PATH, "%s", "files")
 
     # sqlmap files
     paths.OS_SHELL_HISTORY = os.path.join(_, "os.hst")
     paths.SQL_SHELL_HISTORY = os.path.join(_, "sql.hst")
-    paths.SQLMAP_SHELL_HISTORY = os.path.join(_, "sqlmap.hst")
+    paths.INJECTION_SHELL_HISTORY = os.path.join(_, "sqlmap.hst")
     paths.GITHUB_HISTORY = os.path.join(_, "github.hst")
-    paths.SQLMAP_CONFIG_PATH = getUnicode(paths.get("SQLMAP_CONFIG_PATH",os.path.join(paths.INJECTION_ROOT_PATH,"save")),encoding = sys.getfilesystemencoding())
-    paths.SQLMAP_CONFIG = os.path.join(paths.SQLMAP_CONFIG_PATH, "sqlmap-%s.conf" % randomStr())
-    paths.COMMON_COLUMNS = os.path.join(paths.SQLMAP_TXT_PATH, "common-columns.txt")
-    paths.COMMON_TABLES = os.path.join(paths.SQLMAP_TXT_PATH, "common-tables.txt")
-    paths.COMMON_OUTPUTS = os.path.join(paths.SQLMAP_TXT_PATH, 'common-outputs.txt')
-    paths.SQL_KEYWORDS = os.path.join(paths.SQLMAP_TXT_PATH, "keywords.txt")
-    paths.SMALL_DICT = os.path.join(paths.SQLMAP_TXT_PATH, "smalldict.txt")
-    paths.USER_AGENTS = os.path.join(paths.SQLMAP_TXT_PATH, "user-agents.txt")
-    paths.WORDLIST = os.path.join(paths.SQLMAP_TXT_PATH, "wordlist.zip")
-    paths.ERRORS_XML = os.path.join(paths.SQLMAP_XML_PATH, "errors.xml")
-    paths.PAYLOADS_XML = os.path.join(paths.SQLMAP_XML_PATH, "payloads.xml")
-    paths.LIVE_TESTS_XML = os.path.join(paths.SQLMAP_XML_PATH, "livetests.xml")
-    paths.QUERIES_XML = os.path.join(paths.SQLMAP_XML_PATH, "queries.xml")
-    paths.GENERIC_XML = os.path.join(paths.SQLMAP_XML_BANNER_PATH, "generic.xml")
-    paths.MSSQL_XML = os.path.join(paths.SQLMAP_XML_BANNER_PATH, "mssql.xml")
-    paths.MYSQL_XML = os.path.join(paths.SQLMAP_XML_BANNER_PATH, "mysql.xml")
-    paths.ORACLE_XML = os.path.join(paths.SQLMAP_XML_BANNER_PATH, "oracle.xml")
-    paths.PGSQL_XML = os.path.join(paths.SQLMAP_XML_BANNER_PATH, "postgresql.xml")
+    paths.INJECTION_CONFIG_PATH = getUnicode(paths.get("INJECTION_CONFIG_PATH",os.path.join(paths.INJECTION_ROOT_PATH,"save")),encoding = sys.getfilesystemencoding())
+    paths.INJECTION_CONFIG = os.path.join(paths.INJECTION_CONFIG_PATH, "sqlmap-%s.conf" % randomStr())
+    paths.COMMON_COLUMNS = os.path.join(paths.INJECTION_TXT_PATH, "common-columns.txt")
+    paths.COMMON_TABLES = os.path.join(paths.INJECTION_TXT_PATH, "common-tables.txt")
+    paths.COMMON_OUTPUTS = os.path.join(paths.INJECTION_TXT_PATH, 'common-outputs.txt')
+    paths.SQL_KEYWORDS = os.path.join(paths.INJECTION_TXT_PATH, "keywords.txt")
+    paths.SMALL_DICT = os.path.join(paths.INJECTION_TXT_PATH, "smalldict.txt")
+    paths.USER_AGENTS = os.path.join(paths.INJECTION_TXT_PATH, "user-agents.txt")
+    paths.WORDLIST = os.path.join(paths.INJECTION_TXT_PATH, "wordlist.zip")
+    paths.ERRORS_XML = os.path.join(paths.INJECTION_XML_PATH, "errors.xml")
+    paths.PAYLOADS_XML = os.path.join(paths.INJECTION_XML_PATH, "payloads.xml")
+    paths.LIVE_TESTS_XML = os.path.join(paths.INJECTION_XML_PATH, "livetests.xml")
+    paths.QUERIES_XML = os.path.join(paths.INJECTION_XML_PATH, "queries.xml")
+    paths.GENERIC_XML = os.path.join(paths.INJECTION_XML_BANNER_PATH, "generic.xml")
+    paths.MSSQL_XML = os.path.join(paths.INJECTION_XML_BANNER_PATH, "mssql.xml")
+    paths.MYSQL_XML = os.path.join(paths.INJECTION_XML_BANNER_PATH, "mysql.xml")
+    paths.ORACLE_XML = os.path.join(paths.INJECTION_XML_BANNER_PATH, "oracle.xml")
+    paths.PGSQL_XML = os.path.join(paths.INJECTION_XML_BANNER_PATH, "postgresql.xml")
 
     for path in paths.values():
         if any(path.endswith(_) for _ in (".txt", ".xml", ".zip")):
@@ -1778,7 +1778,7 @@ def getSQLSnippet(dbms, sfile, **variables):
     elif not sfile.endswith('.sql') and os.path.exists("%s.sql" % sfile):
         filename = "%s.sql" % sfile
     else:
-        filename = os.path.join(paths.SQLMAP_PROCS_PATH, DBMS_DIRECTORY_DICT[dbms], sfile if sfile.endswith('.sql') else "%s.sql" % sfile)
+        filename = os.path.join(paths.INJECTION_PROCS_PATH, DBMS_DIRECTORY_DICT[dbms], sfile if sfile.endswith('.sql') else "%s.sql" % sfile)
         checkFile(filename)
 
     retVal = readCachedFileContent(filename)

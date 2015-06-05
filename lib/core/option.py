@@ -115,7 +115,7 @@ from lib.core.settings import NULL
 from lib.core.settings import PARAMETER_SPLITTING_REGEX
 from lib.core.settings import PROBLEMATIC_CUSTOM_INJECTION_PATTERNS
 from lib.core.settings import SITE
-from lib.core.settings import SQLMAP_ENVIRONMENT_PREFIX
+from lib.core.settings import INJECTION_ENVIRONMENT_PREFIX
 from lib.core.settings import SUPPORTED_DBMS
 from lib.core.settings import SUPPORTED_OS
 from lib.core.settings import TIME_DELAY_CANDIDATES
@@ -125,7 +125,7 @@ from lib.core.settings import URI_INJECTABLE_REGEX
 from lib.core.settings import VERSION_STRING
 from lib.core.settings import WEBSCARAB_SPLITTER
 from lib.core.threads import getCurrentThreadData
-from lib.core.update import update
+# from lib.core.update import update
 from lib.parse.configfile import configFileParser
 from lib.parse.payloads import loadPayloads
 from lib.parse.sitemap import parseSitemap
@@ -166,11 +166,13 @@ def _urllib2Opener():
     handlers = [proxyHandler, authHandler, redirectHandler, rangeHandler, httpsHandler]
 
     if not conf.dropSetCookie:
-        if not conf.loadCookies:
-            conf.cj = cookielib.CookieJar()
-        else:
-            conf.cj = cookielib.MozillaCookieJar()
-            resetCookieJar(conf.cj)
+        conf.cj = cookielib.CookieJar()
+
+        # if not conf.loadCookies:
+        #     conf.cj = cookielib.CookieJar()
+        # else:
+        #     conf.cj = cookielib.MozillaCookieJar()
+        #     resetCookieJar(conf.cj)
 
         handlers.append(urllib2.HTTPCookieProcessor(conf.cj))
 
@@ -714,119 +716,119 @@ def _setDBMSAuthentication():
     conf.dbmsUsername = match.group(1)
     conf.dbmsPassword = match.group(2)
 
-def _setMetasploit():
-    if not conf.osPwn and not conf.osSmb and not conf.osBof:
-        return
+# def _setMetasploit():
+#     if not conf.osPwn and not conf.osSmb and not conf.osBof:
+#         return
 
-    debugMsg = "setting the takeover out-of-band functionality"
-    logger.debug(debugMsg)
+#     debugMsg = "setting the takeover out-of-band functionality"
+#     logger.debug(debugMsg)
 
-    msfEnvPathExists = False
+#     msfEnvPathExists = False
 
-    if IS_WIN:
-        try:
-            import win32file
-        except ImportError:
-            errMsg = "sqlmap requires third-party module 'pywin32' "
-            errMsg += "in order to use Metasploit functionalities on "
-            errMsg += "Windows. You can download it from "
-            errMsg += "'http://sourceforge.net/projects/pywin32/files/pywin32/'"
-            raise SqlmapMissingDependence(errMsg)
+#     if IS_WIN:
+#         try:
+#             import win32file
+#         except ImportError:
+#             errMsg = "sqlmap requires third-party module 'pywin32' "
+#             errMsg += "in order to use Metasploit functionalities on "
+#             errMsg += "Windows. You can download it from "
+#             errMsg += "'http://sourceforge.net/projects/pywin32/files/pywin32/'"
+#             raise SqlmapMissingDependence(errMsg)
 
-        if not conf.msfPath:
-            def _(key, value):
-                retVal = None
+#         if not conf.msfPath:
+#             def _(key, value):
+#                 retVal = None
 
-                try:
-                    from  _winreg import ConnectRegistry, OpenKey, QueryValueEx, HKEY_LOCAL_MACHINE
-                    _ = ConnectRegistry(None, HKEY_LOCAL_MACHINE)
-                    _ = OpenKey(_, key)
-                    retVal = QueryValueEx(_, value)[0]
-                except:
-                    logger.debug("unable to identify Metasploit installation path via registry key")
+#                 try:
+#                     from  _winreg import ConnectRegistry, OpenKey, QueryValueEx, HKEY_LOCAL_MACHINE
+#                     _ = ConnectRegistry(None, HKEY_LOCAL_MACHINE)
+#                     _ = OpenKey(_, key)
+#                     retVal = QueryValueEx(_, value)[0]
+#                 except:
+#                     logger.debug("unable to identify Metasploit installation path via registry key")
 
-                return retVal
+#                 return retVal
 
-            conf.msfPath = _(r"SOFTWARE\Rapid7\Metasploit", "Location")
-            if conf.msfPath:
-                conf.msfPath = os.path.join(conf.msfPath, "msf3")
+#             conf.msfPath = _(r"SOFTWARE\Rapid7\Metasploit", "Location")
+#             if conf.msfPath:
+#                 conf.msfPath = os.path.join(conf.msfPath, "msf3")
 
-    if conf.osSmb:
-        isAdmin = runningAsAdmin()
+#     if conf.osSmb:
+#         isAdmin = runningAsAdmin()
 
-        if not isAdmin:
-            errMsg = "you need to run sqlmap as an administrator "
-            errMsg += "if you want to perform a SMB relay attack because "
-            errMsg += "it will need to listen on a user-specified SMB "
-            errMsg += "TCP port for incoming connection attempts"
-            raise SqlmapMissingPrivileges(errMsg)
+#         if not isAdmin:
+#             errMsg = "you need to run sqlmap as an administrator "
+#             errMsg += "if you want to perform a SMB relay attack because "
+#             errMsg += "it will need to listen on a user-specified SMB "
+#             errMsg += "TCP port for incoming connection attempts"
+#             raise SqlmapMissingPrivileges(errMsg)
 
-    if conf.msfPath:
-        for path in (conf.msfPath, os.path.join(conf.msfPath, "bin")):
-            if all(os.path.exists(normalizePath(os.path.join(path, _))) for _ in ("", "msfcli", "msfconsole", "msfencode", "msfpayload")):
-                msfEnvPathExists = True
-                conf.msfPath = path
-                break
+#     if conf.msfPath:
+#         for path in (conf.msfPath, os.path.join(conf.msfPath, "bin")):
+#             if all(os.path.exists(normalizePath(os.path.join(path, _))) for _ in ("", "msfcli", "msfconsole", "msfencode", "msfpayload")):
+#                 msfEnvPathExists = True
+#                 conf.msfPath = path
+#                 break
 
-        if msfEnvPathExists:
-            debugMsg = "provided Metasploit Framework path "
-            debugMsg += "'%s' is valid" % conf.msfPath
-            logger.debug(debugMsg)
-        else:
-            warnMsg = "the provided Metasploit Framework path "
-            warnMsg += "'%s' is not valid. The cause could " % conf.msfPath
-            warnMsg += "be that the path does not exists or that one "
-            warnMsg += "or more of the needed Metasploit executables "
-            warnMsg += "within msfcli, msfconsole, msfencode and "
-            warnMsg += "msfpayload do not exist"
-            logger.warn(warnMsg)
-    else:
-        warnMsg = "you did not provide the local path where Metasploit "
-        warnMsg += "Framework is installed"
-        logger.warn(warnMsg)
+#         if msfEnvPathExists:
+#             debugMsg = "provided Metasploit Framework path "
+#             debugMsg += "'%s' is valid" % conf.msfPath
+#             logger.debug(debugMsg)
+#         else:
+#             warnMsg = "the provided Metasploit Framework path "
+#             warnMsg += "'%s' is not valid. The cause could " % conf.msfPath
+#             warnMsg += "be that the path does not exists or that one "
+#             warnMsg += "or more of the needed Metasploit executables "
+#             warnMsg += "within msfcli, msfconsole, msfencode and "
+#             warnMsg += "msfpayload do not exist"
+#             logger.warn(warnMsg)
+#     else:
+#         warnMsg = "you did not provide the local path where Metasploit "
+#         warnMsg += "Framework is installed"
+#         logger.warn(warnMsg)
 
-    if not msfEnvPathExists:
-        warnMsg = "sqlmap is going to look for Metasploit Framework "
-        warnMsg += "installation inside the environment path(s)"
-        logger.warn(warnMsg)
+#     if not msfEnvPathExists:
+#         warnMsg = "sqlmap is going to look for Metasploit Framework "
+#         warnMsg += "installation inside the environment path(s)"
+#         logger.warn(warnMsg)
 
-        envPaths = os.environ.get("PATH", "").split(";" if IS_WIN else ":")
+#         envPaths = os.environ.get("PATH", "").split(";" if IS_WIN else ":")
 
-        for envPath in envPaths:
-            envPath = envPath.replace(";", "")
+#         for envPath in envPaths:
+#             envPath = envPath.replace(";", "")
 
-            if all(os.path.exists(normalizePath(os.path.join(envPath, _))) for _ in ("", "msfcli", "msfconsole", "msfencode", "msfpayload")):
-                infoMsg = "Metasploit Framework has been found "
-                infoMsg += "installed in the '%s' path" % envPath
-                logger.info(infoMsg)
+#             if all(os.path.exists(normalizePath(os.path.join(envPath, _))) for _ in ("", "msfcli", "msfconsole", "msfencode", "msfpayload")):
+#                 infoMsg = "Metasploit Framework has been found "
+#                 infoMsg += "installed in the '%s' path" % envPath
+#                 logger.info(infoMsg)
 
-                msfEnvPathExists = True
-                conf.msfPath = envPath
+#                 msfEnvPathExists = True
+#                 conf.msfPath = envPath
 
-                break
+#                 break
 
-    if not msfEnvPathExists:
-        errMsg = "unable to locate Metasploit Framework installation. "
-        errMsg += "You can get it at 'http://www.metasploit.com/download/'"
-        raise SqlmapFilePathException(errMsg)
+#     if not msfEnvPathExists:
+#         errMsg = "unable to locate Metasploit Framework installation. "
+#         errMsg += "You can get it at 'http://www.metasploit.com/download/'"
+#         raise SqlmapFilePathException(errMsg)
 
-def _setWriteFile():
-    if not conf.wFile:
-        return
+# def _setWriteFile():
+#     if not conf.wFile:
+#         return
 
-    debugMsg = "setting the write file functionality"
-    logger.debug(debugMsg)
+#     debugMsg = "setting the write file functionality"
+#     logger.debug(debugMsg)
 
-    if not os.path.exists(conf.wFile):
-        errMsg = "the provided local file '%s' does not exist" % conf.wFile
-        raise SqlmapFilePathException(errMsg)
+#     if not os.path.exists(conf.wFile):
+#         errMsg = "the provided local file '%s' does not exist" % conf.wFile
+#         raise SqlmapFilePathException(errMsg)
 
-    if not conf.dFile:
-        errMsg = "you did not provide the back-end DBMS absolute path "
-        errMsg += "where you want to write the local file '%s'" % conf.wFile
-        raise SqlmapMissingMandatoryOptionException(errMsg)
+#     if not conf.dFile:
+#         errMsg = "you did not provide the back-end DBMS absolute path "
+#         errMsg += "where you want to write the local file '%s'" % conf.wFile
+#         raise SqlmapMissingMandatoryOptionException(errMsg)
 
-    conf.wFileType = getFileType(conf.wFile)
+#     conf.wFileType = getFileType(conf.wFile)
 
 def _setOS():
     """
@@ -922,8 +924,8 @@ def _setTamperingFunctions():
             if not tfile:
                 continue
 
-            elif os.path.exists(os.path.join(paths.SQLMAP_TAMPER_PATH, tfile if tfile.endswith('.py') else "%s.py" % tfile)):
-                tfile = os.path.join(paths.SQLMAP_TAMPER_PATH, tfile if tfile.endswith('.py') else "%s.py" % tfile)
+            elif os.path.exists(os.path.join(paths.INJECTION_TAMPER_PATH, tfile if tfile.endswith('.py') else "%s.py" % tfile)):
+                tfile = os.path.join(paths.INJECTION_TAMPER_PATH, tfile if tfile.endswith('.py') else "%s.py" % tfile)
 
             elif not os.path.exists(tfile):
                 errMsg = "tamper script '%s' does not exist" % tfile
@@ -1001,7 +1003,7 @@ def _setWafFunctions():
 
     ### --identify-waf
     if conf.identifyWaf:
-        for found in glob.glob(os.path.join(paths.SQLMAP_WAF_PATH, "*.py")):
+        for found in glob.glob(os.path.join(paths.INJECTION_WAF_PATH, "*.py")):
             dirname, filename = os.path.split(found)
             dirname = os.path.abspath(dirname)
 
@@ -1068,7 +1070,7 @@ def _setHTTPProxy():
             infoMsg = "loading proxy '%s' from a supplied proxy list file" % conf.proxy
             logger.info(infoMsg)
         else:
-            if conf.hostname in ('localhost', '127.0.0.1') or conf.ignoreProxy:
+            if conf.hostname in ('localhost', '127.0.0.1') :
                 proxyHandler.proxies = {}
 
             return
@@ -1474,30 +1476,8 @@ def _cleanupOptions():
     logger.debug(debugMsg)
 
     width = getConsoleWidth()
-    """
-    print "----------------------- Clenup width ----------------------"
-    print width
-    print "----------------------------------------------------------"
-    """
 
-    """
-    print "--------------------- conf.eta -----------------------------"
-    print conf.eta
-    print "-----------------------------------------------------------"
-    """
-
-    """
-    print "-------------------- conf before cleanup -------------------"
-    print conf
-    for i in conf.keys() :
-        print i,"----------",conf[i]
-    print "------------------------------------------------------------"
-    """
-
-    if conf.eta:##### --eta
-        conf.progressWidth = width - 26
-    else:
-        conf.progressWidth = width - 46
+    conf.progressWidth = width - 46
 
     for key, value in conf.items():
         #print key,"-----------",value
@@ -1534,25 +1514,25 @@ def _cleanupOptions():
     if conf.delay:
         conf.delay = float(conf.delay)
 
-    if conf.rFile:
-        conf.rFile = ntToPosixSlashes(normalizePath(conf.rFile))
+    # if conf.rFile:
+    #     conf.rFile = ntToPosixSlashes(normalizePath(conf.rFile))
 
-    if conf.wFile:
-        conf.wFile = ntToPosixSlashes(normalizePath(conf.wFile))
+    # if conf.wFile:
+    #     conf.wFile = ntToPosixSlashes(normalizePath(conf.wFile))
 
-    if conf.dFile:
-        conf.dFile = ntToPosixSlashes(normalizePath(conf.dFile))
+    # if conf.dFile:
+    #     conf.dFile = ntToPosixSlashes(normalizePath(conf.dFile))
 
-    if conf.sitemapUrl and not conf.sitemapUrl.lower().startswith("http"):
-        conf.sitemapUrl = "http%s://%s" % ('s' if conf.forceSSL else '', conf.sitemapUrl)
+    # if conf.sitemapUrl and not conf.sitemapUrl.lower().startswith("http"):
+    #     conf.sitemapUrl = "http%s://%s" % ('s' if conf.forceSSL else '', conf.sitemapUrl)
 
-    if conf.msfPath:
-        conf.msfPath = ntToPosixSlashes(normalizePath(conf.msfPath))
+    # if conf.msfPath:
+    #     conf.msfPath = ntToPosixSlashes(normalizePath(conf.msfPath))
 
-    if conf.tmpPath:
-        conf.tmpPath = ntToPosixSlashes(normalizePath(conf.tmpPath))
+    # if conf.tmpPath:
+    #     conf.tmpPath = ntToPosixSlashes(normalizePath(conf.tmpPath))
 
-    if any((conf.googleDork, conf.logFile, conf.bulkFile, conf.sitemapUrl, conf.forms, conf.crawlDepth)):
+    if any((conf.forms, conf.crawlDepth)):
         conf.multipleTargets = True
 
     if conf.optimize:
@@ -1575,14 +1555,15 @@ def _cleanupOptions():
         conf.testFilter = re.sub(r"([^.])([*+])", "\g<1>.\g<2>", conf.testFilter)
 
     if "timeSec" not in kb.explicitSettings:
-        if conf.tor:
-            conf.timeSec = 2 * conf.timeSec
-            kb.adjustTimeDelay = ADJUST_TIME_DELAY.DISABLE
+        # if conf.tor:
+        #     conf.timeSec = 2 * conf.timeSec
+        #     kb.adjustTimeDelay = ADJUST_TIME_DELAY.DISABLE
 
-            warnMsg = "increasing default value for "
-            warnMsg += "option '--time-sec' to %d because " % conf.timeSec
-            warnMsg += "switch '--tor' was provided"
-            logger.warn(warnMsg)
+        #     warnMsg = "increasing default value for "
+        #     warnMsg += "option '--time-sec' to %d because " % conf.timeSec
+        #     warnMsg += "switch '--tor' was provided"
+        #     logger.warn(warnMsg)
+        pass
     else:
         kb.adjustTimeDelay = ADJUST_TIME_DELAY.DISABLE
 
@@ -1595,14 +1576,14 @@ def _cleanupOptions():
     if conf.csvDel:
         conf.csvDel = conf.csvDel.decode("string_escape")  # e.g. '\\t' -> '\t'
 
-    if conf.torPort and isinstance(conf.torPort, basestring) and conf.torPort.isdigit():
-        conf.torPort = int(conf.torPort)
+    # if conf.torPort and isinstance(conf.torPort, basestring) and conf.torPort.isdigit():
+    #     conf.torPort = int(conf.torPort)
 
-    if conf.torType:
-        conf.torType = conf.torType.upper()
+    # if conf.torType:
+    #     conf.torType = conf.torType.upper()
 
     if conf.outputDir:
-        paths.SQLMAP_OUTPUT_PATH = conf.outputDir
+        paths.INJECTION_OUTPUT_PATH = conf.outputDir
         setPaths()
 
     if conf.string:
@@ -1616,15 +1597,15 @@ def _cleanupOptions():
     if conf.getAll:
         map(lambda x: conf.__setitem__(x, True), WIZARD.ALL)
 
-    if conf.noCast:
-        for _ in DUMP_REPLACEMENTS.keys():
-            del DUMP_REPLACEMENTS[_]
+    # if conf.noCast:
+    #     for _ in DUMP_REPLACEMENTS.keys():
+    #         del DUMP_REPLACEMENTS[_]
 
-    if conf.dumpFormat:
-        conf.dumpFormat = conf.dumpFormat.upper()
+    # if conf.dumpFormat:
+    #     conf.dumpFormat = conf.dumpFormat.upper()
 
-    if conf.torType:
-        conf.torType = conf.torType.upper()
+    # if conf.torType:
+    #     conf.torType = conf.torType.upper()
 
     if conf.col:
         conf.col = re.sub(r"\s*,\s*", ",", conf.col)
@@ -1632,16 +1613,8 @@ def _cleanupOptions():
     if conf.excludeCol:
         conf.excludeCol = re.sub(r"\s*,\s*", ",", conf.excludeCol)
 
-    if conf.binaryFields:
-        conf.binaryFields = re.sub(r"\s*,\s*", ",", conf.binaryFields)
-
-    """
-    print "---------------------- conf after clenup -----------------"
-    print conf
-    for i in conf.keys():
-        print i,"-------",conf[i]
-    print "---------------------------------------------------------"
-    """
+    # if conf.binaryFields:
+    #     conf.binaryFields = re.sub(r"\s*,\s*", ",", conf.binaryFields)
 
     threadData = getCurrentThreadData()
     threadData.reset()
@@ -1653,7 +1626,7 @@ def _purgeOutput():
 
     ### --purge_out
     if conf.purgeOutput:
-        purge(paths.SQLMAP_OUTPUT_PATH)
+        purge(paths.INJECTION_OUTPUT_PATH)
 
 def _setConfAttributes():
     """
@@ -1964,10 +1937,10 @@ def _saveCmdline():
 
             config.set(family, option, value)
 
-    confFP = openFile(paths.SQLMAP_CONFIG, "wb")##the name of file is randomstr
+    confFP = openFile(paths.INJECTION_CONFIG, "wb")##the name of file is randomstr
     config.write(confFP)
 
-    infoMsg = "saved command line options on '%s' configuration file" % paths.SQLMAP_CONFIG
+    infoMsg = "saved command line options on '%s' configuration file" % paths.INJECTION_CONFIG
     logger.info(infoMsg)
 
 def setVerbosity():
@@ -2008,18 +1981,9 @@ def _mergeOptions(inputOptions, overrideOptions):
     @type inputOptions: C{instance}
     """
 
-    """
-    print "----------------------------------------------------------"
-    print "-----------------   inputOptions -------------------------"
-    print inputOptions
-    print "----------------------------------------------------------"
-    for i in inputOptions.keys():
-        print i,"--------------",inputOptions[i]
-    print "----------------------------------------------------------"
-    """
 
-    if inputOptions.pickledOptions:
-        inputOptions = base64unpickle(inputOptions.pickledOptions)
+    # if inputOptions.pickledOptions:
+    #     inputOptions = base64unpickle(inputOptions.pickledOptions)
 
     if inputOptions.configFile:
         configFileParser(inputOptions.configFile)
@@ -2043,8 +2007,8 @@ def _mergeOptions(inputOptions, overrideOptions):
 
     _ = {}
     for key, value in os.environ.items():
-        if key.upper().startswith(SQLMAP_ENVIRONMENT_PREFIX):
-            _[key[len(SQLMAP_ENVIRONMENT_PREFIX):].upper()] = value
+        if key.upper().startswith(INJECTION_ENVIRONMENT_PREFIX):
+            _[key[len(INJECTION_ENVIRONMENT_PREFIX):].upper()] = value
 
     types_ = {}
     for group in optDict.keys():
@@ -2216,17 +2180,17 @@ def _basicOptionValidation():
         errMsg = "value for option '--first' (firstChar) must be smaller than or equal to value for --last (lastChar) option"
         raise SqlmapSyntaxException(errMsg)
 
-    if isinstance(conf.cpuThrottle, int) and (conf.cpuThrottle > 100 or conf.cpuThrottle < 0):
-        errMsg = "value for option '--cpu-throttle' (cpuThrottle) must be in range [0,100]"
-        raise SqlmapSyntaxException(errMsg)
+    # if isinstance(conf.cpuThrottle, int) and (conf.cpuThrottle > 100 or conf.cpuThrottle < 0):
+    #     errMsg = "value for option '--cpu-throttle' (cpuThrottle) must be in range [0,100]"
+    #     raise SqlmapSyntaxException(errMsg)
 
     if conf.textOnly and conf.nullConnection:
         errMsg = "switch '--text-only' is incompatible with switch '--null-connection'"
         raise SqlmapSyntaxException(errMsg)
 
-    if conf.direct and conf.url:
-        errMsg = "option '-d' is incompatible with option '-u' ('--url')"
-        raise SqlmapSyntaxException(errMsg)
+    # if conf.direct and conf.url:
+    #     errMsg = "option '-d' is incompatible with option '-u' ('--url')"
+    #     raise SqlmapSyntaxException(errMsg)
 
     if conf.titles and conf.nullConnection:
         errMsg = "switch '--titles' is incompatible with switch '--null-connection'"
@@ -2248,9 +2212,9 @@ def _basicOptionValidation():
         errMsg = "option '--not-string' is incompatible with switch '--null-connection'"
         raise SqlmapSyntaxException(errMsg)
 
-    if conf.noCast and conf.hexConvert:
-        errMsg = "switch '--no-cast' is incompatible with switch '--hex'"
-        raise SqlmapSyntaxException(errMsg)
+    # if conf.noCast and conf.hexConvert:
+    #     errMsg = "switch '--no-cast' is incompatible with switch '--hex'"
+    #     raise SqlmapSyntaxException(errMsg)
 
     if conf.dumpAll and conf.search:
         errMsg = "switch '--dump-all' is incompatible with switch '--search'"
@@ -2268,9 +2232,9 @@ def _basicOptionValidation():
         errMsg = "switch '--dump' is incompatible with switch '--dump-all'"
         raise SqlmapSyntaxException(errMsg)
 
-    if conf.predictOutput and (conf.threads > 1 or conf.optimize):
-        errMsg = "switch '--predict-output' is incompatible with option '--threads' and switch '-o'"
-        raise SqlmapSyntaxException(errMsg)
+    # if conf.predictOutput and (conf.threads > 1 or conf.optimize):
+    #     errMsg = "switch '--predict-output' is incompatible with option '--threads' and switch '-o'"
+    #     raise SqlmapSyntaxException(errMsg)
 
     if conf.threads > MAX_NUMBER_OF_THREADS:
         errMsg = "maximum number of used threads is %d avoiding potential connection issues" % MAX_NUMBER_OF_THREADS
@@ -2280,61 +2244,61 @@ def _basicOptionValidation():
         errMsg = "switch '--forms' requires usage of option '-u' ('--url'), '-g', '-m' or '-x'"
         raise SqlmapSyntaxException(errMsg)
 
-    if conf.csrfUrl and not conf.csrfToken:
-        errMsg = "option '--csrf-url' requires usage of option '--csrf-token'"
-        raise SqlmapSyntaxException(errMsg)
+    # if conf.csrfUrl and not conf.csrfToken:
+    #     errMsg = "option '--csrf-url' requires usage of option '--csrf-token'"
+    #     raise SqlmapSyntaxException(errMsg)
 
-    if conf.csrfToken and conf.threads > 1:
-        errMsg = "option '--csrf-url' is incompatible with option '--threads'"
-        raise SqlmapSyntaxException(errMsg)
+    # if conf.csrfToken and conf.threads > 1:
+    #     errMsg = "option '--csrf-url' is incompatible with option '--threads'"
+    #     raise SqlmapSyntaxException(errMsg)
 
-    if conf.requestFile and conf.url and conf.url != DUMMY_URL:
-        errMsg = "option '-r' is incompatible with option '-u' ('--url')"
-        raise SqlmapSyntaxException(errMsg)
+    # if conf.requestFile and conf.url and conf.url != DUMMY_URL:
+    #     errMsg = "option '-r' is incompatible with option '-u' ('--url')"
+    #     raise SqlmapSyntaxException(errMsg)
 
-    if conf.direct and conf.proxy:
-        errMsg = "option '-d' is incompatible with option '--proxy'"
-        raise SqlmapSyntaxException(errMsg)
+    # if conf.direct and conf.proxy:
+    #     errMsg = "option '-d' is incompatible with option '--proxy'"
+    #     raise SqlmapSyntaxException(errMsg)
 
-    if conf.direct and conf.tor:
-        errMsg = "option '-d' is incompatible with switch '--tor'"
-        raise SqlmapSyntaxException(errMsg)
+    # if conf.direct and conf.tor:
+    #     errMsg = "option '-d' is incompatible with switch '--tor'"
+    #     raise SqlmapSyntaxException(errMsg)
 
-    if not conf.tech:
-        errMsg = "option '--technique' can't be empty"
-        raise SqlmapSyntaxException(errMsg)
+    # if not conf.tech:
+    #     errMsg = "option '--technique' can't be empty"
+    #     raise SqlmapSyntaxException(errMsg)
 
-    if conf.tor and conf.ignoreProxy:
-        errMsg = "switch '--tor' is incompatible with switch '--ignore-proxy'"
-        raise SqlmapSyntaxException(errMsg)
+    # if conf.tor and conf.ignoreProxy:
+    #     errMsg = "switch '--tor' is incompatible with switch '--ignore-proxy'"
+    #     raise SqlmapSyntaxException(errMsg)
 
-    if conf.tor and conf.proxy:
-        errMsg = "switch '--tor' is incompatible with option '--proxy'"
-        raise SqlmapSyntaxException(errMsg)
+    # if conf.tor and conf.proxy:
+    #     errMsg = "switch '--tor' is incompatible with option '--proxy'"
+    #     raise SqlmapSyntaxException(errMsg)
 
-    if conf.checkTor and not any((conf.tor, conf.proxy)):
-        errMsg = "switch '--check-tor' requires usage of switch '--tor' (or option '--proxy' with HTTP proxy address using Tor)"
-        raise SqlmapSyntaxException(errMsg)
+    # if conf.checkTor and not any((conf.tor, conf.proxy)):
+    #     errMsg = "switch '--check-tor' requires usage of switch '--tor' (or option '--proxy' with HTTP proxy address using Tor)"
+    #     raise SqlmapSyntaxException(errMsg)
 
-    if conf.torPort is not None and not (isinstance(conf.torPort, int) and conf.torPort > 0):
-        errMsg = "value for option '--tor-port' must be a positive integer"
-        raise SqlmapSyntaxException(errMsg)
+    # if conf.torPort is not None and not (isinstance(conf.torPort, int) and conf.torPort > 0):
+    #     errMsg = "value for option '--tor-port' must be a positive integer"
+    #     raise SqlmapSyntaxException(errMsg)
 
-    if conf.torType not in getPublicTypeMembers(PROXY_TYPE, True):
-        errMsg = "option '--tor-type' accepts one of following values: %s" % ", ".join(getPublicTypeMembers(PROXY_TYPE, True))
-        raise SqlmapSyntaxException(errMsg)
+    # if conf.torType not in getPublicTypeMembers(PROXY_TYPE, True):
+    #     errMsg = "option '--tor-type' accepts one of following values: %s" % ", ".join(getPublicTypeMembers(PROXY_TYPE, True))
+    #     raise SqlmapSyntaxException(errMsg)
 
-    if conf.dumpFormat not in getPublicTypeMembers(DUMP_FORMAT, True):
-        errMsg = "option '--dump-format' accepts one of following values: %s" % ", ".join(getPublicTypeMembers(DUMP_FORMAT, True))
-        raise SqlmapSyntaxException(errMsg)
+    # if conf.dumpFormat not in getPublicTypeMembers(DUMP_FORMAT, True):
+    #     errMsg = "option '--dump-format' accepts one of following values: %s" % ", ".join(getPublicTypeMembers(DUMP_FORMAT, True))
+    #     raise SqlmapSyntaxException(errMsg)
 
     if conf.skip and conf.testParameter:
         errMsg = "option '--skip' is incompatible with option '-p'"
         raise SqlmapSyntaxException(errMsg)
 
-    if conf.mobile and conf.agent:
-        errMsg = "switch '--mobile' is incompatible with option '--user-agent'"
-        raise SqlmapSyntaxException(errMsg)
+    # if conf.mobile and conf.agent:
+    #     errMsg = "switch '--mobile' is incompatible with option '--user-agent'"
+    #     raise SqlmapSyntaxException(errMsg)
 
     if conf.proxy and conf.ignoreProxy:
         errMsg = "option '--proxy' is incompatible with switch '--ignore-proxy'"
@@ -2369,10 +2333,10 @@ def _basicOptionValidation():
         else:
             conf.charset = _
 
-    if conf.loadCookies:
-        if not os.path.exists(conf.loadCookies):
-            errMsg = "cookies file '%s' does not exist" % conf.loadCookies
-            raise SqlmapFilePathException(errMsg)
+    # if conf.loadCookies:
+    #     if not os.path.exists(conf.loadCookies):
+    #         errMsg = "cookies file '%s' does not exist" % conf.loadCookies
+    #         raise SqlmapFilePathException(errMsg)
 
 def _resolveCrossReferences():
     """
@@ -2421,29 +2385,32 @@ def initOptions(inputOptions=AttribDict(), overrideOptions=False):
     _setKnowledgeBaseAttributes()
     _mergeOptions(inputOptions, overrideOptions)
 
+
 def init():
     """
     Set attributes into both configuration and knowledge base singletons
     based upon command line and configuration file options.
     """
 
-    _useWizardInterface()##--wizard
+    # _useWizardInterface()##--wizard
     setVerbosity()##-v 1
     _saveCmdline()## --save
-    _setRequestFromFile()## -r "requestFileName"
+    # _setRequestFromFile()## -r "requestFileName"
     _cleanupOptions()## --cleanup ##just filter input
     _purgeOutput()## --purge_out ###remove output file safely
-    _checkDependencies()## --denpendencies  ###check dependencies of libraries
+    # _checkDependencies()## --denpendencies  ###check dependencies of libraries
     _basicOptionValidation()## --basic option validation ## just to check the parameter whether all right
-    _setProxyList()## --proxy-file ###load proxy list from file
-    _setTorProxySettings()## --tor ##set tor proxy and establish connection to test
+    # _setProxyList()## --proxy-file ###load proxy list from file
+    # _setTorProxySettings()## --tor ##set tor proxy and establish connection to test
     _setDNSServer()## --dns-domain  ###set dnsserver as administrator
     _adjustLoggingFormatter()## set logging format
-    _setMultipleTargets()## -l Filename ### Parse targets from logfile
-    _setTamperingFunctions()## --tamper tamperName  ###mutation input
-    _setWafFunctions()## --identify-waf ##Test through for WAF/IPS/IDS
+    # _setMultipleTargets()## -l Filename ### Parse targets from logfile
+    # _setTamperingFunctions()## --tamper tamperName  ###mutation input
+    # _setWafFunctions()## --identify-waf ##Test through for WAF/IPS/IDS
     _setTrafficOutputFP()## -t ## Load HTTP traffic into a texttual file
     _resolveCrossReferences()
+    # print "resolvecrossreferences"
+    
     """
     print "----------------------------- after resolvecrossreferences ----------------"
     print "-------------------------  kb ------------------------------------"
@@ -2460,7 +2427,7 @@ def init():
     """
 
     parseTargetUrl()### -u ###Parse the url to set the hostname, port
-    parseTargetDirect()## -d ### Connect the database Directly
+    # parseTargetDirect()## -d ### Connect the database Directly
 
     ## -l logfile ## parse target from burp or 
     ## -m bulkfile ## scan multiple targets in a textual file
@@ -2468,33 +2435,34 @@ def init():
     ## -r requestfile ## load http request from a file
     ## -g googledork  ## google dork
     ## --live-test ## test live 
-    if any((conf.url, conf.logFile, conf.bulkFile, conf.sitemapUrl, conf.requestFile, conf.googleDork, conf.liveTest)):
+    # print "parseTargetUrl"
+    if (conf.url):
         _setHTTPTimeout()## minum is 3ms
         _setHTTPExtraHeaders()## --headers ###set up HTTP headers
-        _setHTTPCookies()#### reparing
+        # _setHTTPCookies()#### reparing
         _setHTTPReferer()#### reparing
-        _setHTTPUserAgent()#### reparing
+        # _setHTTPUserAgent()#### reparing
         _setHTTPMethod()### 
-        _setHTTPAuthentication()### reparing
+        # _setHTTPAuthentication()### reparing
         _setHTTPProxy()###
         _setDNSCache()###
         _setSafeUrl()####  repairing
-        _setGoogleDorking()### -g ###need repair
-        _setBulkMultipleTargets()###
-        _setSitemapTargets()
+        # _setGoogleDorking()### -g ###need repair
+        # _setBulkMultipleTargets()###
+        # _setSitemapTargets()
         _urllib2Opener()
-        _checkTor()
+        # _checkTor()
         _setCrawler()
         _findPageForms()
         _setDBMS()
-        _setTechnique()
+        # _setTechnique()
 
     _setThreads()
     _setOS()
-    _setWriteFile()
-    _setMetasploit()
+    # _setWriteFile()
+    # _setMetasploit()
     _setDBMSAuthentication()
-    conf_info_file = open("conf_info_before.txt","w+")
+    # conf_info_file = open("conf_info_before.txt","w+")
     loadPayloads()
     """
     conf_info_file = open("conf_info_before.txt","w+")
@@ -2505,7 +2473,7 @@ def init():
     print "------------------------------------------------------------------"
     """
     _setPrefixSuffix()
-    update()
+    # update()
     _loadQueries()
 
 

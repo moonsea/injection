@@ -239,15 +239,15 @@ def start():
     check if they are dynamic and SQL injection affected
     """
 
-    if conf.direct:
-        print "Start cong.direct"
-        initTargetEnv()
-        setupTargetEnv()
-        action()
-        return True
+    # if conf.direct:
+    #     print "Start cong.direct"
+    #     initTargetEnv()
+    #     setupTargetEnv()
+    #     action()
+    #     return True
 
     if conf.url and not any((conf.forms, conf.crawlDepth)):
-        kb.targets.add((conf.url, conf.method, conf.data, conf.cookie, None))
+        kb.targets.add((conf.url, conf.method, conf.data, None, None))
 
     if conf.configFile and not kb.targets:
         errMsg = "you did not edit the configuration file properly, set "
@@ -364,12 +364,13 @@ def start():
 
             if not checkConnection(suppressOutput=conf.forms) or not checkString() or not checkRegexp():
                 continue
+            print "tor"
 
-            if conf.checkWaf:
-                checkWaf()
+            # if conf.checkWaf:
+            #     checkWaf()
 
-            if conf.identifyWaf:
-                identifyWaf()
+            # if conf.identifyWaf:
+            #     identifyWaf()
 
             if conf.nullConnection:
                 checkNullConnection()
